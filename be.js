@@ -1,6 +1,6 @@
 (function(g) {
 	/* global require:false, define:false, jQuery:false, importScripts:false */
-	var hasRequire, hasJquery, hasImport, accessToken,
+	var hasRequire, hasJquery, hasImport, apiKey, get,
 	basePath = "//behance.net/v2/",
 	toString = Object.prototype.toString,
 	isFunc = function(fn) { return toString.call(fn) === "[object Function]"; };
@@ -19,8 +19,81 @@
 	}
 
 	function path(ext, param) {
+		param.api_key = apiKey;
 		return basePath + ext + '?' + parameterize(param).join('&');
 	}
+
+	// Find an API key from global variables
+	if ("behance_api_key" in g) {
+		apiKey = g.behance_api_key;
+	}
+
+	////////////
+	// JS API //
+	////////////
+
+	/**
+	 * @exports be
+	 */
+	var be = function be(api) {
+		apiKey = api || apiKey;
+		return be;
+	};
+
+	/**
+	 * Get the information and content of a project.
+	 *
+	 * @param id {Number} Project ID
+	 * @param callback {Function}
+	 */
+	be.project = function(id, callback) {
+		if (!(id|=0)||id<0) throw "Invalid id";
+		var ext = "projects/" + id;
+		get(ext, callback);
+		return be;
+	};
+
+	be.project.comments = function(id, param, callback) {
+		if (!(id|=0)||id<0) throw "Invalid id";
+		var ext = "projects/" + id + "/comments";
+		get(ext, param, callback);
+		return be;
+	};
+
+	be.project.search = function(param, callback) {
+		param = typeof param === "object" ?
+			param :
+			{q: param};
+		var ext = "projects";
+		get(ext, param, callback);
+		return be;
+	};
+
+	be.wip = function(id, rev, callback) {
+		if (!(id|=0)||id<0) throw "Invalid id";
+		if (isFunc(rev)) {
+			callback = rev;
+		}
+		var ext = "wips/" + id;
+		if ((rev|=0) && rev > 0) {
+			ext += '/' + rev;
+		}
+		get(ext, callback);
+		return be;
+	};
+
+	be.wip.search = function(param, callback) {
+		param = typeof param === "object" ?
+			param :
+			{q: param};
+		var ext = "wips";
+		get(ext, param, callback);
+		return be;
+	};
+
+	//////////////////////////
+	// JSONP Implementation //
+	//////////////////////////
 
 	// Check that dynamic require/define pair exists (mostly for almond)
 	hasRequire = (
@@ -46,45 +119,78 @@
 	);
 
 	// Normalize our JSONP methods (ext, param, callback)
-	var get = (function() {
-		if (hasRequire) {
-			return function rGet(ext, param, callback) {
-				param.callback = 'define';
-				param._ = cachebuster();
-				require([path(ext, param)], callback);
-			};
-		}
-		if (hasJquery) {
-			return function jGet(ext, param, callback) {
-				jQuery.ajax({
-					url: path(ext, param),
-					dataType: 'jsonp',
-					success: callback
-				});
-			};
-		}
-		if (hasImport) {
-			return function iGet(ext, param, callback) {
+	get = function get(ext, param, callback) {
+		// Memoize the actual implementation
+		get.raw = get.raw || (function() {
+			if (hasRequire) {
+				return function(ext, param, callback) {
+					param.callback = "define";
+					param._ = cachebuster();
+					require([path(ext, param)], callback);
+				};
+			}
+			if (hasJquery) {
+				return function(ext, param, callback) {
+					jQuery.ajax({
+						url: path(ext, param),
+						dataType: "jsonp",
+						success: callback
+					});
+				};
+			}
+			if (hasImport) {
+				return function(ext, param, callback) {
+					param._ = cachebuster();
+					param.callback = 'b' + param._;
+					g[param.callback] = function() {
+						try { callback.apply(g, arguments); }
+						catch(e) {}
+						finally {
+							g[param.callback] = undefined;
+						}
+					};
+					importScripts(path(ext, param));
+				};
+			}
+
+			// Native implementation
+			var head = document.getElementsByTagName("head")[0];
+			return function(ext, param, callback) {
+				var script = document.createElement("script");
+				script.type = "text/javascript";
 				param._ = cachebuster();
 				param.callback = 'b' + param._;
-				g[param.callback] = callback;
-				importScripts(path(ext, param));
-			}
-		}
-	}());
+				g[param.callback] = function() {
+					try { callback.apply(g, arguments); }
+					catch(e) {}
+					finally {
+						head.removeChild(script);
+						g[param.callback] = undefined;
+					}
+				};
+				script.src = path(ext, param);
+				head.appendChild(script);
+			};
+		}());
 
-	/**
-	 * Main API
-	 */
-	var be = {
+		if (isFunc(param) && !isFunc(callback)) {
+			callback = param;
+		}
+		if (!isFunc(callback)) {
+			throw new TypeError("Callback is not a function");
+		}
+		if (typeof param !== "object") {
+			param = {};
+		}
+		return get.raw(ext, param, callback);
 	};
 
 	// AMD shim
 	if (typeof define === "function" && define.amd) {
+		/** @module be */
 		define("be", be);
 	}
 	else {
 		g.be = be;
 	}
-
 }(this));
