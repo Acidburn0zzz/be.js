@@ -43,8 +43,8 @@
 	/**
 	 * Get the information and content of a project.
 	 *
-	 * @param id {Number} Project ID
-	 * @param callback {Function}
+	 * @param {number} id Project ID
+	 * @param {function} callback
 	 */
 	be.project = function(id, callback) {
 		if (!(id|=0)||id<0) throw "Invalid id";
@@ -53,6 +53,13 @@
 		return be;
 	};
 
+	/**
+	 * Get comments for a project.
+	 *
+	 * @param {number} id Project ID
+	 * @param {object=} param Request parameters
+	 * @param {function} callback
+	 */
 	be.project.comments = function(id, param, callback) {
 		if (!(id|=0)||id<0) throw "Invalid id";
 		var ext = "projects/" + id + "/comments";
@@ -60,6 +67,12 @@
 		return be;
 	};
 
+	/**
+	 * Search for a project.
+	 *
+	 * @param {string|object} param Search parameters
+	 * @param {function} callback
+	 */
 	be.project.search = function(param, callback) {
 		param = typeof param === "object" ?
 			param :
@@ -87,6 +100,41 @@
 			param :
 			{q: param};
 		var ext = "wips";
+		get(ext, param, callback);
+		return be;
+	};
+
+	be.fields = function(callback) {
+		var ext = "fields";
+		get(ext, callback);
+		return be;
+	};
+
+	be.follow = function(param, callback) {
+		var ext = "creativestofollow";
+		get(ext, param, callback);
+		return be;
+	};
+
+	be.collection = function(id, callback) {
+		if (!(id|=0)||id<0) throw "Invalid id";
+		var ext = "collections/" + id;
+		get(ext, callback);
+		return be;
+	};
+
+	be.collection.search = function(param, callback) {
+		param = typeof param === "object" ?
+			param :
+			{q: param};
+		var ext = "collections";
+		get(ext, param, callback);
+		return be;
+	};
+
+	be.collection.projects = function(id, param, callback) {
+		if (!(id|=0)||id<0) throw "Invalid id";
+		var ext = "collection/" + id + "/projects";
 		get(ext, param, callback);
 		return be;
 	};
