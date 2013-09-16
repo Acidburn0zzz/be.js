@@ -1,13 +1,13 @@
 (function(g) {
 	/* global require:false, define:false, jQuery:false, importScripts:false */
 	var hasRequire, hasJquery, hasImport, apiKey, get,
-	basePath = "//behance.net/v2/",
+	basePath = "http://behance.net/v2/",
 	toString = Object.prototype.toString,
 	isFunc = function(fn) { return toString.call(fn) === "[object Function]"; };
 
 	function cachebuster() {
 		cachebuster.prefix = cachebuster.prefix || 0;
-		return (cachebuster.prefix++) + String(Math.random()).slice(1);
+		return (cachebuster.prefix++) + String(Math.random()).slice(2);
 	}
 
 	function parameterize(data) {
@@ -36,7 +36,9 @@
 	 * @exports be
 	 */
 	var be = function be(api) {
-		apiKey = api || apiKey;
+		apiKey = typeof api === "string" ?
+		   (api || apiKey) :
+		   apiKey;
 		return be;
 	};
 
