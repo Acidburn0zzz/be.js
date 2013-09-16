@@ -141,6 +141,95 @@
 		return be;
 	};
 
+	be.user = function(id, callback) {
+		if (!(typeof id === "number" ||
+			  typeof id === "string")) { throw "Invalid id"; }
+		var ext = "users/" + id;
+		get(ext, callback);
+		return be;
+	};
+
+	be.user.projects = function(id, param, callback) {
+		if (!(typeof id === "number" ||
+			  typeof id === "string")) { throw "Invalid id"; }
+		var ext = "users/" + id + "/projects";
+		get(ext, param, callback);
+		return be;
+	};
+
+	be.user.wips = function(id, param, callback) {
+		if (!(typeof id === "number" ||
+			  typeof id === "string")) { throw "Invalid id"; }
+		var ext = "users/" + id + "/wips";
+		get(ext, param, callback);
+		return be;
+	};
+
+	be.user.appreciations = function(id, param, callback) {
+		if (!(typeof id === "number" ||
+			  typeof id === "string")) { throw "Invalid id"; }
+		var ext = "users/" + id + "/appreciations";
+		get(ext, param, callback);
+		return be;
+	};
+
+	be.user.collections = function(id, param, callback) {
+		if (!(typeof id === "number" ||
+			  typeof id === "string")) { throw "Invalid id"; }
+		var ext = "users/" + id + "/collections";
+		get(ext, param, callback);
+		return be;
+	};
+
+	be.user.stats = function(id, callback) {
+		if (!(typeof id === "number" ||
+			  typeof id === "string")) { throw "Invalid id"; }
+		var ext = "users/" + id + "/stats";
+		get(ext, callback);
+		return be;
+	};
+
+	be.user.followers = function(id, param, callback) {
+		if (!(typeof id === "number" ||
+			  typeof id === "string")) { throw "Invalid id"; }
+		var ext = "users/" + id + "/followers";
+		get(ext, param, callback);
+		return be;
+	};
+
+	be.user.following = function(id, param, callback) {
+		if (!(typeof id === "number" ||
+			  typeof id === "string")) { throw "Invalid id"; }
+			var ext = "users/" + id + "/following";
+		get(ext, param, callback);
+		return be;
+	};
+
+	be.user.feedback = function(id, callback) {
+		if (!(typeof id === "number" ||
+			  typeof id === "string")) { throw "Invalid id"; }
+			var ext = "users/" + id + "/feedback";
+		get(ext, callback);
+		return be;
+	};
+
+	be.user.workExperience = function(id, callback) {
+		if (!(typeof id === "number" ||
+			  typeof id === "string")) { throw "Invalid id"; }
+			var ext = "users/" + id + "/work_experience";
+		get(ext, callback);
+		return be;
+	};
+
+	be.user.search = function(param, callback) {
+		param = typeof param === "object" ?
+			param :
+			{q: param};
+		var ext = "users";
+		get(ext, param, callback);
+		return be;
+	};
+
 	//////////////////////////
 	// JSONP Implementation //
 	//////////////////////////
