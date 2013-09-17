@@ -23,6 +23,52 @@
 		return basePath + ext + '?' + parameterize(param).join('&');
 	}
 
+	/**
+	 * Promise implementation from https://github.com/timjansen/PinkySwear.js
+	 */
+	function pinkySwear() {
+		var state; // undefined/null = pending, true = fulfilled, false = rejected
+		var values = []; // an array of values as arguments for the then() handlers
+		var deferred = []; // functions to call when set() is invoked
+
+		var set = function promise(newState, newValues) {
+			if (state == null) {
+				state = newState;
+				values = newValues;
+				setTimeout(function() {
+					for (var i = 0; i < deferred.length; i++)
+					deferred[i]();
+				}, 0);
+			}
+		};
+		set.then = function(onFulfilled, onRejected) {
+			var newPromise = pinkySwear();
+			var callCallbacks = function() {
+				try {
+					var f = (state ? onFulfilled : onRejected);
+					if (isFunction(f)) {
+						var r = f.apply(null, values);
+						if (r && isFunc(r.then))
+							r.then(function(value){newPromise(true,[value]);}, function(value){newPromise(false,[value]);});
+						else
+							newPromise(true, [r]);
+					}
+					else
+						newPromise(state, values);
+				}
+				catch (e) {
+					newPromise(false, [e]);
+				}
+			};
+			if (state != null)
+				setTimeout(callCallbacks, 0);
+			else
+				deferred.push(callCallbacks);
+			return newPromise;
+		};
+		return set;
+	}
+
 	// Find an API key from global variables
 	if ("behance_api_key" in g) {
 		apiKey = g.behance_api_key;
@@ -36,9 +82,9 @@
 	 * @exports be
 	 */
 	var be = function be(api) {
-		apiKey = typeof api === "string" ?
-		   (api || apiKey) :
-		   apiKey;
+		if (typeof api === "string") {
+		   apiKey = api || apiKey;
+		}
 		return be;
 	};
 
@@ -51,8 +97,7 @@
 	be.project = function(id, callback) {
 		if (!(id|=0)||id<0) throw "Invalid id";
 		var ext = "projects/" + id;
-		get(ext, callback);
-		return be;
+		return get(ext, callback);
 	};
 
 	/**
@@ -65,8 +110,7 @@
 	be.project.comments = function(id, param, callback) {
 		if (!(id|=0)||id<0) throw "Invalid id";
 		var ext = "projects/" + id + "/comments";
-		get(ext, param, callback);
-		return be;
+		return get(ext, param, callback);
 	};
 
 	/**
@@ -80,8 +124,7 @@
 			param :
 			{q: param};
 		var ext = "projects";
-		get(ext, param, callback);
-		return be;
+		return get(ext, param, callback);
 	};
 
 	be.wip = function(id, rev, callback) {
@@ -93,8 +136,7 @@
 		if ((rev|=0) && rev > 0) {
 			ext += '/' + rev;
 		}
-		get(ext, callback);
-		return be;
+		return get(ext, callback);
 	};
 
 	be.wip.search = function(param, callback) {
@@ -102,27 +144,23 @@
 			param :
 			{q: param};
 		var ext = "wips";
-		get(ext, param, callback);
-		return be;
+		return get(ext, param, callback);
 	};
 
 	be.fields = function(callback) {
 		var ext = "fields";
-		get(ext, callback);
-		return be;
+		return get(ext, callback);
 	};
 
 	be.follow = function(param, callback) {
 		var ext = "creativestofollow";
-		get(ext, param, callback);
-		return be;
+		return get(ext, param, callback);
 	};
 
 	be.collection = function(id, callback) {
 		if (!(id|=0)||id<0) throw "Invalid id";
 		var ext = "collections/" + id;
-		get(ext, callback);
-		return be;
+		return get(ext, callback);
 	};
 
 	be.collection.search = function(param, callback) {
@@ -130,95 +168,83 @@
 			param :
 			{q: param};
 		var ext = "collections";
-		get(ext, param, callback);
-		return be;
+		return get(ext, param, callback);
 	};
 
 	be.collection.projects = function(id, param, callback) {
 		if (!(id|=0)||id<0) throw "Invalid id";
 		var ext = "collection/" + id + "/projects";
-		get(ext, param, callback);
-		return be;
+		return get(ext, param, callback);
 	};
 
 	be.user = function(id, callback) {
 		if (!(typeof id === "number" ||
 			  typeof id === "string")) { throw "Invalid id"; }
 		var ext = "users/" + id;
-		get(ext, callback);
-		return be;
+		return get(ext, callback);
 	};
 
 	be.user.projects = function(id, param, callback) {
 		if (!(typeof id === "number" ||
 			  typeof id === "string")) { throw "Invalid id"; }
 		var ext = "users/" + id + "/projects";
-		get(ext, param, callback);
-		return be;
+		return get(ext, param, callback);
 	};
 
 	be.user.wips = function(id, param, callback) {
 		if (!(typeof id === "number" ||
 			  typeof id === "string")) { throw "Invalid id"; }
 		var ext = "users/" + id + "/wips";
-		get(ext, param, callback);
-		return be;
+		return get(ext, param, callback);
 	};
 
 	be.user.appreciations = function(id, param, callback) {
 		if (!(typeof id === "number" ||
 			  typeof id === "string")) { throw "Invalid id"; }
 		var ext = "users/" + id + "/appreciations";
-		get(ext, param, callback);
-		return be;
+		return get(ext, param, callback);
 	};
 
 	be.user.collections = function(id, param, callback) {
 		if (!(typeof id === "number" ||
 			  typeof id === "string")) { throw "Invalid id"; }
 		var ext = "users/" + id + "/collections";
-		get(ext, param, callback);
-		return be;
+		return get(ext, param, callback);
 	};
 
 	be.user.stats = function(id, callback) {
 		if (!(typeof id === "number" ||
 			  typeof id === "string")) { throw "Invalid id"; }
 		var ext = "users/" + id + "/stats";
-		get(ext, callback);
-		return be;
+		return get(ext, callback);
 	};
 
 	be.user.followers = function(id, param, callback) {
 		if (!(typeof id === "number" ||
 			  typeof id === "string")) { throw "Invalid id"; }
 		var ext = "users/" + id + "/followers";
-		get(ext, param, callback);
-		return be;
+		return get(ext, param, callback);
 	};
 
 	be.user.following = function(id, param, callback) {
 		if (!(typeof id === "number" ||
 			  typeof id === "string")) { throw "Invalid id"; }
 			var ext = "users/" + id + "/following";
-		get(ext, param, callback);
-		return be;
+		return get(ext, param, callback);
 	};
 
 	be.user.feedback = function(id, callback) {
 		if (!(typeof id === "number" ||
 			  typeof id === "string")) { throw "Invalid id"; }
 			var ext = "users/" + id + "/feedback";
-		get(ext, callback);
-		return be;
+		return get(ext, callback);
 	};
 
 	be.user.workExperience = function(id, callback) {
 		if (!(typeof id === "number" ||
 			  typeof id === "string")) { throw "Invalid id"; }
 			var ext = "users/" + id + "/work_experience";
-		get(ext, callback);
-		return be;
+		return get(ext, callback);
 	};
 
 	be.user.search = function(param, callback) {
@@ -226,8 +252,7 @@
 			param :
 			{q: param};
 		var ext = "users";
-		get(ext, param, callback);
-		return be;
+		return get(ext, param, callback);
 	};
 
 	//////////////////////////
@@ -262,52 +287,55 @@
 		// Memoize the actual implementation
 		get.raw = get.raw || (function() {
 			if (hasRequire) {
-				return function(ext, param, callback) {
+				return function(ext, param, accept, reject) {
 					param.callback = "define";
 					param._ = cachebuster();
-					require([path(ext, param)], callback);
+					require([path(ext, param)], accept, reject);
 				};
 			}
 			if (hasJquery) {
-				return function(ext, param, callback) {
+				return function(ext, param, accept, reject) {
 					jQuery.ajax({
 						url: path(ext, param),
 						dataType: "jsonp",
-						success: callback
+						success: accept,
+						failure: reject
 					});
 				};
 			}
 			if (hasImport) {
-				return function(ext, param, callback) {
+				return function(ext, param, accept, reject) {
 					param._ = cachebuster();
 					param.callback = 'b' + param._;
 					g[param.callback] = function() {
-						try { callback.apply(g, arguments); }
-						catch(e) {}
+						try { accept.apply(g, arguments); }
+						catch(e) { reject(e); }
 						finally {
 							g[param.callback] = undefined;
 						}
 					};
-					importScripts(path(ext, param));
+					try { importScripts(path(ext, param)); }
+					catch(e) { reject(e); };
 				};
 			}
 
 			// Native implementation
 			var head = document.getElementsByTagName("head")[0];
-			return function(ext, param, callback) {
+			return function(ext, param, accept, reject) {
 				var script = document.createElement("script");
 				script.type = "text/javascript";
 				param._ = cachebuster();
 				param.callback = 'b' + param._;
 				g[param.callback] = function() {
-					try { callback.apply(g, arguments); }
-					catch(e) {}
+					try { accept.apply(g, arguments); }
+					catch(e) { reject(e); }
 					finally {
 						head.removeChild(script);
 						g[param.callback] = undefined;
 					}
 				};
 				script.src = path(ext, param);
+				script.onerror = reject;
 				head.appendChild(script);
 			};
 		}());
@@ -321,13 +349,21 @@
 		if (typeof param !== "object") {
 			param = {};
 		}
-		return get.raw(ext, param, callback);
+		var promise = pinkySwear(),
+		accept = function() { promise(true, arguments); },
+		reject = function() { promise(false, arguments); };
+		promise.then(callback);
+		get.raw(ext, param, accept, reject);
+		return promise;
 	};
 
 	// AMD shim
 	if (typeof define === "function" && define.amd) {
 		/** @module be */
-		define("be", be);
+		define(be);
+	}
+	else if (typeof exports === "object") {
+		module.exports = be;
 	}
 	else {
 		g.be = be;
