@@ -27,6 +27,7 @@
 	 * Promise implementation from https://github.com/timjansen/PinkySwear.js
 	 */
 	function pinkySwear() {
+		/* jshint eqnull:true */
 		var state; // undefined/null = pending, true = fulfilled, false = rejected
 		var values = []; // an array of values as arguments for the then() handlers
 		var deferred = []; // functions to call when set() is invoked
@@ -46,7 +47,7 @@
 			var callCallbacks = function() {
 				try {
 					var f = (state ? onFulfilled : onRejected);
-					if (isFunction(f)) {
+					if (isFunc(f)) {
 						var r = f.apply(null, values);
 						if (r && isFunc(r.then))
 							r.then(function(value){newPromise(true,[value]);}, function(value){newPromise(false,[value]);});
@@ -83,7 +84,7 @@
 	 */
 	var be = function be(api) {
 		if (typeof api === "string") {
-		   apiKey = api || apiKey;
+			apiKey = api || apiKey;
 		}
 		return be;
 	};
@@ -315,7 +316,7 @@
 						}
 					};
 					try { importScripts(path(ext, param)); }
-					catch(e) { reject(e); };
+					catch(e) { reject(e); }
 				};
 			}
 
@@ -342,9 +343,6 @@
 
 		if (isFunc(param) && !isFunc(callback)) {
 			callback = param;
-		}
-		if (!isFunc(callback)) {
-			throw new TypeError("Callback is not a function");
 		}
 		if (typeof param !== "object") {
 			param = {};
