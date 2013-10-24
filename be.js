@@ -1,7 +1,7 @@
 (function(g) {
 	/* global require:false, define:false, jQuery:false, importScripts:false */
 	var hasRequire, hasJquery, hasImport, apiKey, get,
-	basePath = "http://behance.net/v2/",
+	basePath = "http://www.behance.net/v2/",
 	toString = Object.prototype.toString,
 	isFunc = function(fn) { return toString.call(fn) === "[object Function]"; };
 
@@ -299,8 +299,9 @@
 					jQuery.ajax({
 						url: path(ext, param),
 						dataType: "jsonp",
+            timeout: 7000,
 						success: accept,
-						failure: reject
+						error: reject
 					});
 				};
 			}
