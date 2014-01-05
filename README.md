@@ -19,34 +19,34 @@ Once you have access to the export, using it is easy.
    as a function or by setting a global called `behance_api_key` before
    including `be.js`
 
-```javascript
-require(['be'], function(be) {
-  be('BehanceApiKey');
-});
-```
+   ```javascript
+   require(['be'], function(be) {
+    be('BehanceApiKey');
+   });
+   ```
 
 2. Make the API request. The `be` export has various functions attached to it
    in order to make the API requests for the publicly available endpoints in
    the Behance API. Every request function returns a Promises/A+ compliant
    promise. They also take a callback.
 
-```javascript
-require(['be'], function(be) {
-  // Using promises
-  be('BehanceApiKey')
-  .project.search('cats')
-  .then(function success(results) {
-    console.log(results);
-  }, function failure(error) {
-    console.error(error);
-  });
-
-  // Using callbacks
-  be.project.search('dogs', function success(results) {
-    console.log(results);
-  });
-});
-```
+  ```javascript
+   require(['be'], function(be) {
+     // Using promises
+     be('BehanceApiKey')
+     .project.search('cats')
+     .then(function success(results) {
+       console.log(results);
+     }, function failure(error) {
+       console.error(error);
+     });
+   
+     // Using callbacks
+     be.project.search('dogs', function success(results) {
+       console.log(results);
+     });
+   });
+  ```
 
 [2]: http://requirejs.org/docs/download.html
 
