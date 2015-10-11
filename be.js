@@ -140,8 +140,6 @@
 		return get(ext, callback);
 	};
 
-  // @TODO: Get comments on a revision of a work in progress.
-
 	be.wip.search = function(param, callback) {
 		param = typeof param === "object" ?
 			param :
