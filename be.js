@@ -234,13 +234,6 @@
 		return get(ext, param, callback);
 	};
 
-	be.user.feedback = function(id, callback) {
-		if (!(typeof id === "number" ||
-			  typeof id === "string")) { throw "Invalid id"; }
-			var ext = "users/" + id + "/feedback";
-		return get(ext, callback);
-	};
-
 	be.user.workExperience = function(id, callback) {
 		if (!(typeof id === "number" ||
 			  typeof id === "string")) { throw "Invalid id"; }
